@@ -4,6 +4,7 @@ const cors = require('cors');
 const MongoClient = require('mongodb').MongoClient;
 require('dotenv').config();
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.a6ded.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`;
+const ObjectId = require('mongodb').ObjectID;
 
 const app = express();
 app.use(bodyParser.json());
@@ -23,8 +24,7 @@ client.connect((err) => {
 	app.post('/insertappartment', (req, res) => {
 		const appartments = req.body;
 		appartmentColection.insertMany(appartments).then((result) => {
-			// res.send(result.insertedCount);
-			res.sendStatus(status);
+			res.status(200).send('Okay!');
 			console.log(result);
 		});
 	});
@@ -33,6 +33,18 @@ client.connect((err) => {
 		appartmentColection.find({}).toArray((err, documents) => {
 			res.send(documents);
 		});
+	});
+
+	app.get('/appartment', (req, res) => {
+		const id = req.query.id;
+		console.log(id);
+		appartmentColection
+			.find({ _id: ObjectId(req.query.id) })
+			.toArray((err, documents) => {
+				if (documents.length > 0) {
+					res.status(200).send(documents);
+				}
+			});
 	});
 });
 
